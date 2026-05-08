@@ -16,8 +16,10 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="MAIL_MAILER" value="log"/>
+        <env name="MAIL_MAILER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="OPENAI_API_KEY" value="sk-test-fake"/>
     </php>
 </phpunit>

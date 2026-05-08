@@ -1,6 +1,6 @@
 # Laravel SaaS: AI-Personalized Welcome Email (Sandbox)
 
-A Laravel application where new users sign up, AI generates a personalized welcome email based on their profile, and the email is sent via [Mailtrap](https://mailtrap.io) — with a config-only switch between **Sandbox** (preview) and **production** (real delivery) modes.
+A Laravel application where new users sign up, AI generates a personalized welcome email based on their profile, and the email is sent via [Mailtrap](https://mailtrap.io) - with a config-only switch between **Sandbox** (preview) and **production** (real delivery) modes.
 
 ## How It Works
 
@@ -12,15 +12,15 @@ User fills out signup form
   Input validation
         |
         v
-  AI generates personalized content ── Failed? → Use generic welcome
+  AI generates personalized content -- Failed? → Use generic welcome
   (headline, body, CTA)
         |
         v
   Send welcome email via Mailtrap
   template API with variables
         |
-        ├── MAILTRAP_SANDBOX=true  → Email appears in Sandbox inbox
-        └── MAILTRAP_SANDBOX=false → Email delivered to real inbox
+        ├-- MAILTRAP_SANDBOX=true  → Email appears in Sandbox inbox
+        └-- MAILTRAP_SANDBOX=false → Email delivered to real inbox
         |
         v
   Redirect with success message
@@ -28,12 +28,12 @@ User fills out signup form
 
 ## Features
 
-- **AI Personalization** — OpenAI generates a personalized welcome email based on the user's role, company size, and use case
-- **Mailtrap Sandbox Mode** — Preview AI-generated emails in your Mailtrap Sandbox inbox during development
-- **Production Mode** — Flip one env var to send real emails via Mailtrap transactional API
-- **Config-Only Switching** — `MAILTRAP_SANDBOX=true/false` toggles modes with zero code changes
-- **Mailtrap Templates** — Email content delivered via Mailtrap template engine with variables (`user_name`, `headline`, `body`, `cta_text`)
-- **Graceful Degradation** — If OpenAI is unavailable, a generic welcome email is sent instead; mail failures are logged without crashing
+- **AI Personalization** - OpenAI generates a personalized welcome email based on the user's role, company size, and use case
+- **Mailtrap Sandbox Mode** - Preview AI-generated emails in your Mailtrap Sandbox inbox during development
+- **Production Mode** - Flip one env var to send real emails via Mailtrap transactional API
+- **Config-Only Switching** - `MAILTRAP_SANDBOX=true/false` toggles modes with zero code changes
+- **Mailtrap Templates** - Email content delivered via Mailtrap template engine with variables (`user_name`, `headline`, `body`, `cta_text`)
+- **Graceful Degradation** - If OpenAI is unavailable, a generic welcome email is sent instead; mail failures are logged without crashing
 
 ## Prerequisites
 
@@ -47,8 +47,8 @@ User fills out signup form
 1. **Clone and install**
 
 ```bash
-git clone https://github.com/mailtrap/examples.git
-cd examples/php/laravel-welcome-email-ai
+git clone https://github.com/gaalferov/laravel-welcome-email-ai.git
+cd laravel-welcome-email-ai
 composer install
 ```
 
@@ -72,7 +72,7 @@ OPENAI_MODEL=gpt-4o-mini          # optional, defaults to gpt-4o-mini
 
 4. **Choose your mode**
 
-For **Sandbox** (development — emails go to Mailtrap inbox):
+For **Sandbox** (development - emails go to Mailtrap inbox):
 
 ```
 MAILTRAP_SANDBOX=true
@@ -102,7 +102,7 @@ php artisan serve
 | Variable | Type | Example |
 |---|---|---|
 | `user_name` | string | `Jane Doe` |
-| `headline` | string | `Welcome, Jane — let's get you shipping` |
+| `headline` | string | `Welcome, Jane - let's get you shipping` |
 | `body` | string | `As a Developer at a mid-size company focused on transactional emails...` |
 | `cta_text` | string | `Explore the API` |
 
@@ -136,8 +136,10 @@ app/
     WelcomeEmailPersonalizer.php     # AI content generation via OpenAI
     WelcomeMailer.php                # Sends email via Mailtrap template API
 config/
-  mail.php                            # Mailtrap mailer config
-  welcome.php                         # Template UUID, sandbox toggle, AI model
+  mail.php                            # Sender address/name (Mail facade is unused)
+  services.php                        # Mailtrap API key, host, sandbox toggle, inbox id
+  openai.php                          # OpenAI API key (required: openai-php/laravel does NOT mergeConfigFrom)
+  welcome.php                         # Template UUID + AI model
 resources/views/
   signup.blade.php                    # Signup form UI
 routes/
@@ -154,18 +156,18 @@ The `WelcomeMailer` service initializes `MailtrapClient` with sandbox configurat
 
 ```php
 $client = MailtrapClient::initSendingEmails(
-    apiKey: config('services.mailtrap.apiKey'),
+    apiKey: config('services.mailtrap.api_key'),
     isSandbox: $isSandbox,
-    inboxId: $isSandbox ? $inboxId : null,
+    inboxId: $isSandbox ? (int) $inboxId : null,
 );
 ```
 
 - **Sandbox** (`MAILTRAP_SANDBOX=true`): Emails are delivered to your Mailtrap Sandbox inbox for preview. Requires `MAILTRAP_INBOX_ID`.
 - **Production** (`MAILTRAP_SANDBOX=false`): Emails are delivered to real inboxes via Mailtrap transactional API.
 
-No code changes needed — just toggle the env var.
+No code changes needed - just toggle the env var.
 
-> **Note:** Mailtrap operates as two distinct products. **Mailtrap Sandbox** is a fake SMTP environment for development and testing — emails sent there are never delivered to real recipients. **Mailtrap Email Sending** (production) is a separate infrastructure for transactional email delivery to real inboxes. This project uses `MAILTRAP_API_KEY` which works for both, but the endpoints and behavior differ.
+> **Note:** Mailtrap operates as two distinct products. **Mailtrap Sandbox** is a fake SMTP environment for development and testing - emails sent there are never delivered to real recipients. **Mailtrap Email Sending** (production) is a separate infrastructure for transactional email delivery to real inboxes. This project uses `MAILTRAP_API_KEY` which works for both, but the endpoints and behavior differ.
 
 ### AI Personalization
 
@@ -173,7 +175,7 @@ The `WelcomeEmailPersonalizer` sends the user's profile to OpenAI with a structu
 
 ```php
 [
-    'headline' => 'Welcome, Jane — let\'s get you shipping',
+    'headline' => 'Welcome, Jane - let\'s get you shipping',
     'body'     => 'As a Developer at a growing 11-50 person company...',
     'cta_text' => 'Explore the API',
 ]
@@ -191,17 +193,27 @@ $email = (new MailtrapEmail())
     ->templateVariables($templateVariables);
 
 MailtrapClient::initSendingEmails(
-    apiKey: config('services.mailtrap.apiKey'),
+    apiKey: config('services.mailtrap.api_key'),
     isSandbox: $isSandbox,
-    inboxId: $isSandbox ? $inboxId : null,
+    inboxId: $isSandbox ? (int) $inboxId : null,
 )->send($email);
 ```
 
 ### Error Handling
 
-- **OpenAI unavailable** — falls back to a generic welcome message with the user's name. The email is still sent.
-- **Mail delivery failure** — logged at error level; the user still sees a success message to avoid confusion.
-- **Missing template UUID** — logged as warning; email sending is skipped gracefully.
+- **OpenAI unavailable** - falls back to a generic welcome message with the user's name. The email is still sent.
+- **Mail delivery failure** - logged at error level and surfaced to the user via a flash error message ("We could not send the welcome email - please try again or contact support."). No success message is shown.
+- **Missing template UUID** - logged as warning; email sending is skipped gracefully (no failure shown to the user).
+- **Sandbox mode without inbox ID** - logged as warning; email sending is skipped to avoid an invalid API call.
+
+## Limitations
+
+This is a demo. Before adapting it for production, consider:
+
+- **Prompt injection.** The `use_case` field is free text that flows into the OpenAI user message. A crafted submission can bias the generated headline/body/cta_text. Output is constrained to JSON shape and only renders into the user's own welcome email, so blast radius is limited - but for higher-stakes copy, sanitize input or run an output guard.
+- **PII in logs.** The signup email is logged at info/error level. For production, redact or hash before persisting log records.
+- **Synchronous HTTP path.** The OpenAI call and the Mailtrap call both happen inside the form-submit request. A slow OpenAI response (or rate limit) blocks the user. For production, queue the entire welcome flow and respond to the user immediately.
+- **No persistence.** Signups are not stored. If the email send fails after AI personalization, the personalized content is lost. For production, persist the signup first and enqueue the welcome email as a job.
 
 ## Running Tests
 
@@ -209,7 +221,7 @@ MailtrapClient::initSendingEmails(
 ./vendor/bin/phpunit
 ```
 
-Tests cover form validation, AI personalization, generic fallback, mail failure handling, sandbox/production mode switching, and missing template UUID — all without requiring real OpenAI or Mailtrap credentials.
+Tests cover form validation, AI personalization, generic fallback, mail failure handling, sandbox/production mode switching, and missing template UUID - all without requiring real OpenAI or Mailtrap credentials.
 
 ## Links
 

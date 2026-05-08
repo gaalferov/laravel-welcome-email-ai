@@ -63,9 +63,12 @@ class SignupController extends Controller
                 'email' => $validated['email'],
                 'error' => $e->getMessage(),
             ]);
+
+            return redirect()->route('signup.show')
+                ->with('error', 'We could not send the welcome email. Please try again or contact support.');
         }
 
-        $mode = config('welcome.sandbox') ? 'sandbox' : 'production';
+        $mode = config('services.mailtrap.sandbox') ? 'sandbox' : 'production';
 
         return redirect()->route('signup.show')
             ->with('success', "Welcome email sent ({$mode} mode)! Check your inbox.");

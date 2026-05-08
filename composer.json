@@ -1,5 +1,5 @@
 {
-    "name": "mailtrap/laravel-welcome-email-ai",
+    "name": "gaalferov/laravel-welcome-email-ai",
     "type": "project",
     "description": "Laravel SaaS signup with AI-personalized welcome emails via Mailtrap (Sandbox + production)",
     "keywords": ["laravel", "mailtrap", "ai", "welcome-email", "sandbox", "openai", "saas"],
@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^11.0",
-        "railsware/mailtrap-php": "^2.0",
+        "railsware/mailtrap-php": "^3.0",
         "symfony/http-client": "^7.0",
         "nyholm/psr7": "^1.8",
         "openai-php/laravel": "^0.10"

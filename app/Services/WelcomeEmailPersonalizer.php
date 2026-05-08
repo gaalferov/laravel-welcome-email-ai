@@ -15,11 +15,11 @@ You are an email copywriter for a SaaS product. Given a user's profile, generate
 - "cta_text": A call-to-action button label (2-4 words) tailored to their use case
 
 Adjust the tone based on the user's role:
-- Developer: technical, API-focused — reference SDKs, code samples, and concrete integration details
-- Founder / CTO: startup-friendly, focused on quick wins and shipping fast
-- Engineering Manager: enterprise-oriented, migration-focused — emphasize scale, team workflows, and switching from other providers
-- QA Engineer: testing/QA-focused — reference test environments, templates, sandbox inboxes, and validation workflows
-- For other roles: keep the tone professional but friendly
+- Developer: technical, API-focused. Reference SDKs, code samples, and concrete integration details.
+- Founder / CTO: startup-friendly, focused on quick wins and shipping fast.
+- Engineering Manager: enterprise-oriented, migration-focused. Emphasize scale, team workflows, and switching from other providers.
+- QA Engineer: testing/QA-focused. Reference test environments, templates, sandbox inboxes, and validation workflows.
+- For other roles: keep the tone professional but friendly.
 
 Do not use exclamation marks excessively.
 PROMPT;
@@ -68,7 +68,7 @@ PROMPT;
     {
         return [
             'headline' => "Welcome aboard, {$name}",
-            'body' => "We're glad to have you here. Our platform is designed to help teams like yours work more efficiently. Take a few minutes to explore the dashboard and set up your workspace — you'll be up and running in no time.",
+            'body' => "We're glad to have you here. Our platform is designed to help teams like yours work more efficiently. Take a few minutes to explore the dashboard and set up your workspace - you'll be up and running in no time.",
             'cta_text' => 'Get Started',
         ];
     }

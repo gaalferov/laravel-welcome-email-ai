@@ -33,7 +33,7 @@ class SignupTest extends TestCase
         $this->app->instance(WelcomeEmailPersonalizer::class, $mock);
     }
 
-    // ─── Form display ───
+    // Form display
 
     public function test_signup_page_loads(): void
     {
@@ -50,7 +50,7 @@ class SignupTest extends TestCase
         $response->assertRedirect('/signup');
     }
 
-    // ─── Form validation ───
+    // Form validation
 
     public function test_validation_rejects_missing_fields(): void
     {
@@ -77,7 +77,7 @@ class SignupTest extends TestCase
         $response->assertSessionHasErrors('use_case');
     }
 
-    // ─── Successful signup ───
+    // Successful signup
 
     public function test_successful_signup_redirects_with_success_message(): void
     {
@@ -110,7 +110,7 @@ class SignupTest extends TestCase
         $this->post('/signup', $this->validForm);
     }
 
-    // ─── AI fallback ───
+    // AI fallback
 
     public function test_ai_failure_falls_back_to_generic_welcome(): void
     {
@@ -145,9 +145,9 @@ class SignupTest extends TestCase
             ->once();
     }
 
-    // ─── Mail failure ───
+    // Mail failure
 
-    public function test_mail_failure_does_not_crash_app(): void
+    public function test_mail_failure_flashes_error_and_does_not_crash_app(): void
     {
         Log::spy();
 
@@ -161,18 +161,19 @@ class SignupTest extends TestCase
         $response = $this->post('/signup', $this->validForm);
 
         $response->assertRedirect('/signup');
-        $response->assertSessionHas('success');
+        $response->assertSessionMissing('success');
+        $response->assertSessionHas('error');
 
         Log::shouldHaveReceived('error')
             ->withArgs(fn (string $msg) => str_contains($msg, 'Failed to send welcome email'))
             ->once();
     }
 
-    // ─── Sandbox mode indicator ───
+    // Sandbox mode indicator
 
     public function test_sandbox_mode_shows_badge_on_form(): void
     {
-        config(['welcome.sandbox' => true]);
+        config(['services.mailtrap.sandbox' => true]);
 
         $response = $this->get('/signup');
 
@@ -181,7 +182,7 @@ class SignupTest extends TestCase
 
     public function test_production_mode_hides_sandbox_badge(): void
     {
-        config(['welcome.sandbox' => false]);
+        config(['services.mailtrap.sandbox' => false]);
 
         $response = $this->get('/signup');
 
@@ -190,7 +191,7 @@ class SignupTest extends TestCase
 
     public function test_success_message_includes_sandbox_mode(): void
     {
-        config(['welcome.sandbox' => true]);
+        config(['services.mailtrap.sandbox' => true]);
         $this->fakePersonalizer();
 
         $mailer = $this->mock(WelcomeMailer::class);
@@ -203,7 +204,7 @@ class SignupTest extends TestCase
 
     public function test_success_message_includes_production_mode(): void
     {
-        config(['welcome.sandbox' => false]);
+        config(['services.mailtrap.sandbox' => false]);
         $this->fakePersonalizer();
 
         $mailer = $this->mock(WelcomeMailer::class);
@@ -214,7 +215,7 @@ class SignupTest extends TestCase
         $response->assertSessionHas('success', 'Welcome email sent (production mode)! Check your inbox.');
     }
 
-    // ─── Missing template UUID ───
+    // Missing template UUID
 
     public function test_missing_template_uuid_skips_email_gracefully(): void
     {
@@ -223,7 +224,7 @@ class SignupTest extends TestCase
         config(['welcome.mailtrap_template_uuid' => null]);
         $this->fakePersonalizer();
 
-        $realMailer = new WelcomeMailer();
+        $realMailer = new WelcomeMailer;
         $this->app->instance(WelcomeMailer::class, $realMailer);
 
         $response = $this->post('/signup', $this->validForm);

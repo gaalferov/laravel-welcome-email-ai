@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up — {{ config('app.name') }}</title>
+    <title>Sign Up - {{ config('app.name') }}</title>
     <!-- Tailwind CSS via CDN for demo simplicity. For production, use a build step: https://tailwindcss.com/docs/installation -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -13,9 +13,9 @@
             <h1 class="text-3xl font-bold text-gray-900">Create your account</h1>
             <p class="mt-2 text-gray-600">We'll send you a personalized welcome email</p>
 
-            @if(config('welcome.sandbox'))
+            @if(config('services.mailtrap.sandbox'))
                 <span class="inline-block mt-2 px-3 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded-full">
-                    Sandbox mode — emails go to Mailtrap inbox
+                    Sandbox mode - emails go to Mailtrap inbox
                 </span>
             @endif
         </div>
@@ -23,6 +23,12 @@
         @if(session('success'))
             <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                {{ session('error') }}
             </div>
         @endif
 
@@ -97,7 +103,7 @@
         document.getElementById('signup-form').addEventListener('submit', () => {
             const btn = document.getElementById('signup-submit');
             btn.disabled = true;
-            btn.textContent = 'Sending…';
+            btn.textContent = 'Sending...';
         });
     </script>
 

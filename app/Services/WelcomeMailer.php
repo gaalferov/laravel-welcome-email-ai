@@ -21,7 +21,18 @@ class WelcomeMailer
             return;
         }
 
-        $email = (new MailtrapEmail())
+        $isSandbox = (bool) config('services.mailtrap.sandbox');
+        $inboxId = config('services.mailtrap.inbox_id');
+
+        if ($isSandbox && empty($inboxId)) {
+            Log::warning('Sandbox mode is on but MAILTRAP_INBOX_ID is not set, skipping welcome email', [
+                'recipient' => $recipientEmail,
+            ]);
+
+            return;
+        }
+
+        $email = (new MailtrapEmail)
             ->from(new Address(
                 config('mail.from.address'),
                 config('mail.from.name'),
@@ -30,13 +41,10 @@ class WelcomeMailer
             ->templateUuid($templateUuid)
             ->templateVariables($templateVariables);
 
-        $isSandbox = (bool) config('welcome.sandbox');
-        $inboxId = (int) config('welcome.inbox_id');
-
         $client = MailtrapClient::initSendingEmails(
-            apiKey: config('services.mailtrap.apiKey'),
+            apiKey: config('services.mailtrap.api_key'),
             isSandbox: $isSandbox,
-            inboxId: $isSandbox ? $inboxId : null,
+            inboxId: $isSandbox ? (int) $inboxId : null,
         );
 
         $client->send($email);
